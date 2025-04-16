@@ -50,8 +50,8 @@ def extract_ip_comment_lines(text_content):
     if not text_content:
         return ip_lines
 
-    # 匹配 IPv4 地址后跟 '#' 和任意字符的格式
-    ip_pattern = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#.*')
+    # 匹配 IPv4 地址，可选地后跟 '#' 和任意字符
+    ip_pattern = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(#.*)?$')
     lines = text_content.splitlines()
     for line in lines:
         line = line.strip()
