@@ -8,6 +8,8 @@ on:
 jobs:
   aggregate:
     runs-on: ubuntu-latest
+    permissions: # Add this block
+      contents: write # Grant write permission
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
