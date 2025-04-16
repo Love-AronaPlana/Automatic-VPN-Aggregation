@@ -9,3 +9,6 @@
 # https://another-example.com/subscription
 
 https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub
+
+
+https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub
