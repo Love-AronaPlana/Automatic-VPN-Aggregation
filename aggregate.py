@@ -92,7 +92,7 @@ def main():
     # proxy_pattern = re.compile(r'^\w+://.+')
     for source in subscription_sources:
         source = source.strip()
-        if is_valid_url(source):
+        if source.startswith('http://') or source.startswith('https://'):
             # 是 URL，尝试获取内容
             print(f"Fetching content from URL: {source}")
             content = get_content_from_url(source)
@@ -106,13 +106,10 @@ def main():
                     print(f"  No potential IP lines found in content from {source}.")
             else:
                 print(f"  Failed to get or process content from {source}.")
-        # 不再处理直接的代理链接，只处理 URL
-        # elif proxy_pattern.match(source):
-        #     all_ip_lines.add(source)
-        #     print(f"Added direct proxy link: {source[:60]}...")
         else:
-            # 如果源不是有效的 URL，则跳过
-            print(f"Skipping invalid source (not a valid URL): {source}", file=sys.stderr)
+            # 不是 URL，直接添加到结果集
+            print(f"Adding direct entry: {source}")
+            all_ip_lines.add(source)
 
     # 写入文件
     if all_ip_lines:
