@@ -8,5 +8,4 @@
 # 示例订阅 URL:
 # https://another-example.com/subscription
 
-https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub
-https://SUB.CMLiussss.net
+https://addressesapi.090227.xyz/ip.164746.xyz
