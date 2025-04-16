@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 # VLESS 订阅源文件，每行一个链接或 URL
 SOURCES_FILE = "sources.txt"
 # 输出文件名
-OUTPUT_FILE = "aggregated_vless.txt"
+OUTPUT_FILE = "aggregated_proxies.txt"
 # --- 配置区 --- END ---
 
 def is_valid_url(url):
@@ -19,20 +19,45 @@ def is_valid_url(url):
     except ValueError:
         return False
 
-def get_links_from_url(url):
+def get_content_from_url(url):
     """从 URL 获取内容"""
     try:
-        response = requests.get(url, timeout=10) # 设置 10 秒超时
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        }
+        response = requests.get(url, headers=headers, timeout=10) # 设置 10 秒超时，添加 User-Agent
         response.raise_for_status() # 如果请求失败则抛出异常
-        return response.text
+        # 尝试检测是否是 Base64 编码
+        content = response.text.strip()
+        # 简单的 Base64 检测：长度是 4 的倍数，且只包含 Base64 字符
+        # 注意：这可能误判某些非 Base64 文本，但对于订阅链接通常足够
+        is_likely_base64 = len(content) % 4 == 0 and re.match(r'^[A-Za-z0-9+/=\s]*$', content)
+
+        if is_likely_base64:
+            print(f"  Content from {url} seems Base64 encoded, attempting decode...")
+            decoded_content = decode_base64(content)
+            if decoded_content:
+                print(f"  Successfully decoded Base64 content.")
+                return decoded_content
+            else:
+                print(f"  Failed to decode Base64 content, treating as plain text.", file=sys.stderr)
+                return content # 解码失败，返回原始内容
+        else:
+            print(f"  Content from {url} treated as plain text.")
+            return content # 不是 Base64，直接返回
+
     except requests.exceptions.RequestException as e:
         print(f"Error fetching URL {url}: {e}", file=sys.stderr)
         return None
+    except Exception as e:
+        print(f"Error processing content from {url}: {e}", file=sys.stderr)
+        return None # 其他处理错误
 
 def decode_base64(encoded_str):
-    """尝试 Base64 解码"""
+    """尝试 Base64 解码，处理可能的 padding 问题"""
     try:
-        # 处理可能的 padding 问题
+        # 移除可能的空白字符
+        encoded_str = re.sub(r'\s', '', encoded_str)
         padding = '=' * (-len(encoded_str) % 4)
         decoded_bytes = base64.b64decode(encoded_str + padding)
         return decoded_bytes.decode('utf-8')
@@ -40,11 +65,21 @@ def decode_base64(encoded_str):
         # print(f"Error decoding Base64 string: {encoded_str[:50]}... Error: {e}", file=sys.stderr)
         return None # 返回 None 表示解码失败
 
-def extract_vless_links(content):
-    """从文本内容中提取 VLESS 链接"""
-    # 正则表达式匹配 vless:// 开头的链接
-    vless_pattern = r"vless:\/\/[a-zA-Z0-9\+\/\=\-\.\_\@\:\#\?]+"
-    return re.findall(vless_pattern, content)
+def extract_proxy_links_from_text(text_content):
+    """从文本内容中逐行提取代理链接 (ss, vmess, trojan, vless)"""
+    proxy_links = set()
+    if not text_content:
+        return proxy_links
+
+    # 使用正则表达式匹配常见的代理协议链接
+    # 支持 ss://, vmess://, trojan://, vless://
+    proxy_pattern = re.compile(r'^(ss|vmess|trojan|vless)://[^s]+')
+    lines = text_content.splitlines()
+    for line in lines:
+        line = line.strip()
+        if proxy_pattern.match(line):
+            proxy_links.add(line)
+    return proxy_links
 
 def read_sources_from_file(filename):
     """从文件读取订阅源，每行一个"""
@@ -58,79 +93,58 @@ def read_sources_from_file(filename):
         print(f"Read {len(sources)} sources from {filename}")
     except FileNotFoundError:
         print(f"Error: Sources file '{filename}' not found.", file=sys.stderr)
-        # 可以选择退出或返回空列表
-        # sys.exit(1)
     except IOError as e:
         print(f"Error reading sources file {filename}: {e}", file=sys.stderr)
-        # sys.exit(1)
     return sources
 
 def main():
-    all_vless_links = set()
+    all_proxy_links = set()
     subscription_sources = read_sources_from_file(SOURCES_FILE)
 
     if not subscription_sources:
         print("No sources found or failed to read sources file. Exiting.", file=sys.stderr)
-        # 确保即使没有源也创建/清空输出文件
         try:
             open(OUTPUT_FILE, 'w').close()
             print(f"Created/Cleared {OUTPUT_FILE} as no sources were processed.")
         except IOError as e:
             print(f"Error creating/clearing file {OUTPUT_FILE}: {e}", file=sys.stderr)
-        return # 提前退出
+        return
 
+    proxy_pattern = re.compile(r'^(ss|vmess|trojan|vless)://[^s]+')
     for source in subscription_sources:
-        content = None
-        if source.startswith("vless://"):
-            # 直接是 VLESS 链接
-            all_vless_links.add(source.strip())
-            print(f"Added direct VLESS link: {source[:50]}...")
-            continue
+        if proxy_pattern.match(source.strip()):
+            # 直接是代理链接
+            all_proxy_links.add(source.strip())
+            print(f"Added direct proxy link: {source[:50]}...")
         elif is_valid_url(source):
             # 是 URL，尝试获取内容
             print(f"Fetching content from URL: {source}")
-            content = get_links_from_url(source)
-            if not content:
-                continue # 获取失败，跳过
+            content = get_content_from_url(source)
+            if content:
+                # 从获取到的内容（可能是纯文本或解码后的文本）中提取代理链接
+                found_links = extract_proxy_links_from_text(content)
+                if found_links:
+                    print(f"  Found {len(found_links)} proxy links in content from {source}.")
+                    all_proxy_links.update(found_links)
+                else:
+                    print(f"  No proxy links found in content from {source}.")
+            else:
+                print(f"  Failed to get or process content from {source}.")
         else:
             print(f"Skipping invalid source: {source}", file=sys.stderr)
-            continue
-
-        # 尝试提取 VLESS 链接
-        found_links = extract_vless_links(content)
-        if found_links:
-            print(f"  Found {len(found_links)} VLESS links directly.")
-            for link in found_links:
-                all_vless_links.add(link.strip())
-        else:
-            # 如果直接提取不到，尝试 Base64 解码后再提取
-            print(f"  No direct VLESS links found, attempting Base64 decode...")
-            decoded_content = decode_base64(content.strip()) # 先移除首尾空白再解码
-            if decoded_content:
-                decoded_links = extract_vless_links(decoded_content)
-                if decoded_links:
-                    print(f"  Found {len(decoded_links)} VLESS links after Base64 decode.")
-                    for link in decoded_links:
-                        all_vless_links.add(link.strip())
-                else:
-                    print(f"  No VLESS links found after Base64 decode.")
-            else:
-                 print(f"  Failed to decode Base64 content or decoded content is empty.")
 
     # 写入文件
-    if all_vless_links:
-        print(f"\nTotal unique VLESS links found: {len(all_vless_links)}")
+    if all_proxy_links:
+        print(f"\nTotal unique proxy links found: {len(all_proxy_links)}")
         try:
             with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-                for link in sorted(list(all_vless_links)): # 排序后写入
+                for link in sorted(list(all_proxy_links)): # 排序后写入
                     f.write(link + '\n')
             print(f"Successfully wrote links to {OUTPUT_FILE}")
         except IOError as e:
             print(f"Error writing to file {OUTPUT_FILE}: {e}", file=sys.stderr)
     else:
-        print("No VLESS links found from any source.")
-        # 如果没有找到链接，可以选择创建一个空文件或保留旧文件
-        # 这里选择创建/覆盖为空文件
+        print("No proxy links found from any source.")
         try:
             open(OUTPUT_FILE, 'w').close()
             print(f"Created/Cleared {OUTPUT_FILE} as no links were found.")
