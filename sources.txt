@@ -1,0 +1,10 @@
+# 这是一个示例 sources.txt 文件
+# 请将下面的链接替换为你自己的 VLESS 链接或订阅 URL
+# 每行一个链接或 URL，以 # 开头的行将被忽略
+
+# 示例 VLESS 链接:
+# vless://your-uuid@your-domain:443?encryption=none&security=tls&sni=your-domain&type=ws&host=your-domain&path=%2F#Example-Node
+
+# 示例订阅 URL:
+https://raw.githubusercontent.com/mfuu/v2ray/master/vless/auto
+# https://another-example.com/subscription
