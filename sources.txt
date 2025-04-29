@@ -56,7 +56,6 @@ cf.0sm.com
 cf.877771.xyz
 cf.345673.xyz
 https://raw.githubusercontent.com/ymyuuu/IPDB/refs/heads/main/BestCF/bestcfv4.txt
-https://raw.githubusercontent.com/ymyuuu/IPDB/refs/heads/main/BestProxy/bestproxy%26country.txt?proxyip=true
 https://ipdb.api.030101.xyz/?type=bestproxy&country=true
 https://raw.githubusercontent.com/ZhiXuanWang/cf-speed-dns/refs/heads/main/ipTop10.html
 https://raw.githubusercontent.com/Love-AronaPlana/CloudflareST/refs/heads/main/TLS.txt
@@ -67,4 +66,3 @@ https://raw.githubusercontent.com/einsitang/my-fast-cf-ip/refs/heads/master/fast
 https://ipdb.api.030101.xyz/?type=bestcf&country=true
 https://addressesapi.090227.xyz/CloudFlareYes
 https://addressesapi.090227.xyz/ip.164746.xyz
-https://ipdb.api.030101.xyz/?type=bestproxy&country=true?proxyip=true
