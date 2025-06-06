@@ -56,7 +56,6 @@ cf.0sm.com
 cf.877771.xyz
 cf.345673.xyz
 https://raw.githubusercontent.com/ymyuuu/IPDB/refs/heads/main/BestCF/bestcfv4.txt
-https://ipdb.api.030101.xyz/?type=bestproxy&country=true
 https://raw.githubusercontent.com/ZhiXuanWang/cf-speed-dns/refs/heads/main/ipTop10.html
 https://raw.githubusercontent.com/Love-AronaPlana/CloudflareST/refs/heads/main/TLS.txt
 https://raw.githubusercontent.com/suancaicc/cf-ip/refs/heads/main/ip.txt
