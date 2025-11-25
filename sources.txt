@@ -41,11 +41,11 @@ www.visakorea.com
 www.gco.gov.qa
 www.gov.se
 www.gov.ua
-cfip.xxxxxxxx.tk#OTC提供维护官方优选
-bestcf.onecf.eu.org#Mingyu提供维护官方优选
-cf.zhetengsha.eu.org#小一提供维护官方优选
-acjp2.cloudflarest.link#KJKKK维护官方优选
-achk.cloudflarest.link#KJKKK维护官方优选
+cfip.xxxxxxxx.tk
+bestcf.onecf.eu.org
+cf.zhetengsha.eu.org
+acjp2.cloudflarest.link
+achk.cloudflarest.link
 xn--b6gac.eu.org
 yx.887141.xyz
 8.889288.xyz
@@ -59,8 +59,6 @@ https://raw.githubusercontent.com/ymyuuu/IPDB/refs/heads/main/BestCF/bestcfv4.tx
 https://raw.githubusercontent.com/ZhiXuanWang/cf-speed-dns/refs/heads/main/ipTop10.html
 https://raw.githubusercontent.com/Love-AronaPlana/CloudflareST/refs/heads/main/TLS.txt
 https://raw.githubusercontent.com/suancaicc/cf-ip/refs/heads/main/ip.txt
-https://raw.githubusercontent.com/yuanxiawan/cfipv4db/refs/heads/main/cfip.txt
-https://raw.githubusercontent.com/yuanxiawan/cfipv4db/refs/heads/main/cf.txt
 https://raw.githubusercontent.com/einsitang/my-fast-cf-ip/refs/heads/master/fastips.txt
 https://ipdb.api.030101.xyz/?type=bestcf&country=true
 https://addressesapi.090227.xyz/CloudFlareYes
